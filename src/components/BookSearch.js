@@ -1,18 +1,51 @@
 import React from 'react'
+import Book from './Book'
+import * as BooksAPI from '../apis/BooksAPI'
+import * as ArrayUtils from '../utils/ArrayUtils'
 import './BookSearch.css'
 
 class BookSearch extends React.Component {
   state = {
-    searchKeyword: ''
+    searchKeyword: '',
+    searchResults: []
   }
+
   handleCloseClick = () => {
     this.props.onClickClose({showSearchPage: false});
   }
+
   handleKeywordChange = (e) => {
     this.setState({
       searchKeyword: e.target.value
-    })
+    });
+
+    clearTimeout(this.timeout);
+    this.timeout = setTimeout(() => {
+      let keyword = this.state.searchKeyword;
+      let bookList = this.props.getBookList;
+      let bookListSearchResults = ArrayUtils.searchArrayByKeyword(bookList, ['title', 'authors'], keyword);
+      let remoteSearchResults, finalSearchReasults;
+      BooksAPI.search(keyword)
+              .then(result => {
+                if (result instanceof Array && result.length) {
+                  remoteSearchResults = result.map(result => {
+                    result.shelf = 'none';
+                    return result;
+                  });
+                } else {
+                  remoteSearchResults = [];
+                }
+                finalSearchReasults = ArrayUtils.MergeAndUniqueByPropertyName(remoteSearchResults, bookListSearchResults, 'title');
+                this.setState({searchResults: finalSearchReasults});
+              })
+              .catch(error => {
+                finalSearchReasults = bookListSearchResults;
+                this.setState({searchResults: finalSearchReasults});
+              })
+
+    }, 500)
   }
+
   render() {
     return (
       <div className="search-books">
@@ -32,7 +65,11 @@ class BookSearch extends React.Component {
           </div>
         </div>
         <div className="search-books-results">
-          <ol className="books-grid"></ol>
+          <ol className="books-grid">
+            {
+              this.state.searchResults.map(book => (<Book key={book.id} data={book} updateBookInfo={() => {this.props.refresh()}} />))
+            }
+          </ol>
         </div>
       </div>
     )

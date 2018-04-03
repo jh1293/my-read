@@ -1,8 +1,9 @@
 import React from 'react'
-// import * as BooksAPI from './BooksAPI'
 import './App.css'
 import BookSearch from './BookSearch'
 import BookList from './BookList'
+import * as BooksAPI from '../apis/BooksAPI'
+
 
 class BooksApp extends React.Component {
   state = {
@@ -13,6 +14,13 @@ class BooksApp extends React.Component {
      * pages, as well as provide a good URL they can bookmark and share.
      */
     showSearchPage: false,
+    // bookList: null,
+    // modifiedBooks: [],
+    books: []
+  }
+
+  componentDidMount() {
+    this.getAllBooks();
   }
 
   handleBookSearchCloseClick = (data) => {
@@ -23,11 +31,26 @@ class BooksApp extends React.Component {
     this.setState(data);
   }
 
+  getAllBooks = () => {
+    BooksAPI.getAll()
+            .then(result => {
+              this.setState({books: result}, () => {
+                this.forceUpdate();
+              });
+            });
+  }
+
   render() {
     return (
       <div className="app">
         {this.state.showSearchPage ?
-          (<BookSearch onClickClose={this.handleBookSearchCloseClick} />) : (<BookList onClickSearch={this.handleBookListSearchClick}/>)}
+          (<BookSearch refresh={() => {this.getAllBooks()}}
+                       onClickClose={this.handleBookSearchCloseClick}
+                       getBookList={this.state.books}/>) :
+          (<BookList data={this.state.books}
+                     refresh={() => {this.getAllBooks()}}
+                     onClickSearch={this.handleBookListSearchClick}/>)
+        }
       </div>
     )
   }
