@@ -5,8 +5,8 @@ import './Book.css'
 class Book extends React.Component {
   state = {}
 
-  componentWillMount() {
-    this.setState(this.props.data);
+  passState = (data) => {
+    this.setState(data);
   }
 
   handleSelectionChange = (e) => {
@@ -15,7 +15,7 @@ class Book extends React.Component {
     this.setState({shelf: e.target.value}, () => {
       BooksAPI.update(this.state, e.target.value)
               .then(result => {
-                this.props.updateBookInfo();
+                this.props.syncBooks();
               })
     });
   }
@@ -25,9 +25,9 @@ class Book extends React.Component {
       <li>
         <div className="book">
           <div className="book-top">
-            <div className="book-cover" style={{ width: 128, height: 192, backgroundImage: `url(${this.state.imageLinks.thumbnail})` }}></div>
+            <div className="book-cover" style={{ width: 128, height: 192, backgroundImage: `url(${this.state.imageLinks && this.state.imageLinks.thumbnail || ''})` }}></div>
             <div className="book-shelf-changer">
-              <select value={this.state.shelf} onChange={this.handleSelectionChange}>
+              <select value={this.state.shelf || 'none'} onChange={this.handleSelectionChange}>
                 <option value="none" disabled>Move to...</option>
                 <option value="currentlyReading">Currently Reading</option>
                 <option value="wantToRead">Want to Read</option>
@@ -36,7 +36,7 @@ class Book extends React.Component {
               </select>
             </div>
           </div>
-          <div className="book-title">{this.state.title}</div>
+          <div className="book-title">{this.state.title || ''}</div>
           <div className="book-authors">{this.state.authors && this.state.authors.join(', ') || ''}</div>
         </div>
       </li>

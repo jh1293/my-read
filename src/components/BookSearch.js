@@ -6,8 +6,16 @@ import './BookSearch.css'
 
 class BookSearch extends React.Component {
   state = {
+    localBooks: [],
     searchKeyword: '',
     searchResults: []
+  }
+
+  passState = (data) => {
+    console.log(data);
+    this.setState({
+      localBooks: data
+    })
   }
 
   handleCloseClick = () => {
@@ -22,24 +30,24 @@ class BookSearch extends React.Component {
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
       let keyword = this.state.searchKeyword;
-      let bookList = this.props.getBookList;
-      let bookListSearchResults = ArrayUtils.searchArrayByKeyword(bookList, ['title', 'authors'], keyword);
-      let remoteSearchResults, finalSearchReasults;
+      let localBooks = this.state.localBooks;
+      let localBooksSearchResults = ArrayUtils.searchArrayByKeyword(localBooks, ['title', 'authors'], keyword);
+      let remoteBooksSearchResults, finalSearchReasults;
       BooksAPI.search(keyword)
               .then(result => {
                 if (result instanceof Array && result.length) {
-                  remoteSearchResults = result.map(result => {
+                  remoteBooksSearchResults = result.map(result => {
                     result.shelf = 'none';
                     return result;
                   });
                 } else {
-                  remoteSearchResults = [];
+                  remoteBooksSearchResults = [];
                 }
-                finalSearchReasults = ArrayUtils.MergeAndUniqueByPropertyName(remoteSearchResults, bookListSearchResults, 'title');
+                finalSearchReasults = ArrayUtils.MergeAndUniqueByPropertyName(remoteBooksSearchResults, localBooksSearchResults, 'title');
                 this.setState({searchResults: finalSearchReasults});
               })
               .catch(error => {
-                finalSearchReasults = bookListSearchResults;
+                finalSearchReasults = localBooksSearchResults;
                 this.setState({searchResults: finalSearchReasults});
               })
 
@@ -67,7 +75,7 @@ class BookSearch extends React.Component {
         <div className="search-books-results">
           <ol className="books-grid">
             {
-              this.state.searchResults.map(book => (<Book key={book.id} data={book} updateBookInfo={() => {this.props.refresh()}} />))
+              this.state.searchResults.map(book => (<Book key={book.id} ref={Book => { Book ? Book.passState(book) : void(0)}} syncBooks={() => {this.props.syncBooks()}} />))
             }
           </ol>
         </div>

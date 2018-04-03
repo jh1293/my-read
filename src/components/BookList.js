@@ -10,16 +10,12 @@ class BookList extends React.Component {
     books: []
   }
 
-  componentWillMount() {
-    this.setState({books: this.props.data});
-  }
-
-  componentWillReceiveProps() {
-    this.setState({books: this.props.data});
-  }
-
   handleSearchClick = () => {
     this.props.onClickSearch({showSearchPage: true});
+  }
+
+  passState = (data) => {
+    this.setState({books: data});
   }
 
   render() {
@@ -31,13 +27,13 @@ class BookList extends React.Component {
         <div className="list-books-content">
           <div>
             <BookShelf title="Currently Reading">
-              {this.state.books.filter(book => book.shelf === 'currentlyReading').map(book => (<Book key={book.id} data={book} updateBookInfo={() => {this.props.refresh()}} />))}
+              {this.state.books.filter(book => book.shelf === 'currentlyReading').map(book => (<Book key={book.id} ref={Book => { Book ? Book.passState(book) : void(0)}} syncBooks={() => {this.props.syncBooks()}} />))}
             </BookShelf>
             <BookShelf title="Want to Read">
-              {this.state.books.filter(book => book.shelf === 'wantToRead').map(book => (<Book key={book.id} data={book} updateBookInfo={() => {this.props.refresh()}} />))}
+              {this.state.books.filter(book => book.shelf === 'wantToRead').map(book => (<Book key={book.id} ref={Book => { Book ? Book.passState(book) : void(0)}} syncBooks={() => {this.props.syncBooks()}} />))}
             </BookShelf>
             <BookShelf title="Read">
-              {this.state.books.filter(book => book.shelf === 'read').map(book => (<Book key={book.id} data={book} updateBookInfo={() => {this.props.refresh()}} />))}
+              {this.state.books.filter(book => book.shelf === 'read').map(book => (<Book key={book.id}  ref={Book => { Book ? Book.passState(book) : void(0)}} syncBooks={() => {this.props.syncBooks()}} />))}
             </BookShelf>
           </div>
         </div>

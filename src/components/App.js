@@ -19,10 +19,6 @@ class BooksApp extends React.Component {
     books: []
   }
 
-  componentDidMount() {
-    this.getAllBooks();
-  }
-
   handleBookSearchCloseClick = (data) => {
     this.setState(data);
   }
@@ -34,22 +30,34 @@ class BooksApp extends React.Component {
   getAllBooks = () => {
     BooksAPI.getAll()
             .then(result => {
-              this.setState({books: result}, () => {
-                this.forceUpdate();
-              });
+              this.setState({books: result});
             });
+  }
+
+  componentWillMount() {
+    this.getAllBooks();
+  }
+
+  componentDidUpdate() {
+    if (this.BookList) {
+      this.BookList.passState(this.state.books);
+    }
+    if (this.BookSearch) {
+      this.BookSearch.passState(this.state.books);
+    }
   }
 
   render() {
     return (
       <div className="app">
         {this.state.showSearchPage ?
-          (<BookSearch refresh={() => {this.getAllBooks()}}
-                       onClickClose={this.handleBookSearchCloseClick}
-                       getBookList={this.state.books}/>) :
-          (<BookList data={this.state.books}
-                     refresh={() => {this.getAllBooks()}}
-                     onClickSearch={this.handleBookListSearchClick}/>)
+          (<BookSearch ref={BookSearch => {this.BookSearch = BookSearch}}
+                       syncBooks={() => {this.getAllBooks()}}
+                       onClickClose={this.handleBookSearchCloseClick} />) :
+          (<BookList
+                     ref={BookList => { this.BookList = BookList }}
+                     syncBooks={() => {this.getAllBooks()}}
+                     onClickSearch={this.handleBookListSearchClick} />)
         }
       </div>
     )
