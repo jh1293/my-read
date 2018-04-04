@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import Book from './Book'
 import * as BooksAPI from '../apis/BooksAPI'
 import * as ArrayUtils from '../utils/ArrayUtils'
@@ -12,14 +13,9 @@ class BookSearch extends React.Component {
   }
 
   passState = (data) => {
-    console.log(data);
     this.setState({
       localBooks: data
     })
-  }
-
-  handleCloseClick = () => {
-    this.props.onClickClose({showSearchPage: false});
   }
 
   handleKeywordChange = (e) => {
@@ -58,7 +54,7 @@ class BookSearch extends React.Component {
     return (
       <div className="search-books">
         <div className="search-books-bar">
-          <a className="close-search" onClick={this.handleCloseClick}>Close</a>
+          <Link className="close-search" to="/">Close</Link>
           <div className="search-books-input-wrapper">
             {/*
               NOTES: The search from BooksAPI is limited to a particular set of search terms.

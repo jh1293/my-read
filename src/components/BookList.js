@@ -1,17 +1,12 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import BookShelf from './BookShelf'
 import Book from './Book'
-import * as ArrayUtils from '../utils/ArrayUtils'
-import * as BooksAPI from '../apis/BooksAPI'
 import './BookList.css'
 
 class BookList extends React.Component {
   state = {
     books: []
-  }
-
-  handleSearchClick = () => {
-    this.props.onClickSearch({showSearchPage: true});
   }
 
   passState = (data) => {
@@ -38,7 +33,7 @@ class BookList extends React.Component {
           </div>
         </div>
         <div className="open-search">
-          <a onClick={this.handleSearchClick}>Add a book</a>
+          <Link to="/search">Add a book</Link>
         </div>
       </div>
     )

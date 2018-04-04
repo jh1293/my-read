@@ -1,4 +1,5 @@
 import React from 'react'
+import { Route } from 'react-router-dom'
 import './App.css'
 import BookSearch from './BookSearch'
 import BookList from './BookList'
@@ -13,18 +14,7 @@ class BooksApp extends React.Component {
      * users can use the browser's back and forward buttons to navigate between
      * pages, as well as provide a good URL they can bookmark and share.
      */
-    showSearchPage: false,
-    // bookList: null,
-    // modifiedBooks: [],
     books: []
-  }
-
-  handleBookSearchCloseClick = (data) => {
-    this.setState(data);
-  }
-
-  handleBookListSearchClick = (data) => {
-    this.setState(data);
   }
 
   getAllBooks = () => {
@@ -50,15 +40,18 @@ class BooksApp extends React.Component {
   render() {
     return (
       <div className="app">
-        {this.state.showSearchPage ?
-          (<BookSearch ref={BookSearch => {this.BookSearch = BookSearch}}
-                       syncBooks={() => {this.getAllBooks()}}
-                       onClickClose={this.handleBookSearchCloseClick} />) :
-          (<BookList
-                     ref={BookList => { this.BookList = BookList }}
-                     syncBooks={() => {this.getAllBooks()}}
-                     onClickSearch={this.handleBookListSearchClick} />)
-        }
+        <Route exact
+               path="/"
+               render={() => (
+                 <BookList  ref={BookList => { this.BookList = BookList }}
+                            syncBooks={() => {this.getAllBooks()}}/>
+               )} />
+       <Route exact
+              path="/search"
+              render={() => (
+                <BookSearch ref={BookSearch => {this.BookSearch = BookSearch}}
+                            syncBooks={() => {this.getAllBooks()}}/>
+              )} />
       </div>
     )
   }
